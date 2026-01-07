@@ -7,26 +7,43 @@ const clipRoutes = require('./Routes/routesClip');
 
 const app = express();
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://tu-frontend-en-render.com'
+// ============================
+// Configuración CORS
+// ============================
+// Permite distintos orígenes según entorno
+const whitelist = [
+  'http://localhost:5173',          // frontend en local
+  'https://jade-jelly-bba4f6.netlify.app/'  // frontend en producción
 ];
 
 app.use(cors({
   origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // Postman o fetch sin origin
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+    // Permitir requests sin origen (por ejemplo Postman)
+    if (!origin) return callback(null, true);
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS no permitido por el servidor'));
     }
-    return callback(new Error('CORS no permitido'));
   },
-  credentials: true,
   methods: ['GET','POST','PUT','DELETE'],
+  credentials: true
 }));
 
+// Para manejar preflight requests automáticamente
+app.options('*', cors({
+  origin: whitelist,
+  credentials: true
+}));
+
+// ============================
+// Middlewares
+// ============================
 app.use(express.json());
 
+// ============================
 // Rutas
+// ============================
 app.use('/api', codeRoutes);
 app.use('/api', cloudRoutes);
 app.use('/api', clipRoutes);
