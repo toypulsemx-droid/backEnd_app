@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Entorno / Variables sensibles
+.env
+
+# Archivos de logs
+*.log
+
+# Build o dist (si tienes)
+dist/
+build/
+
+# Mac / sistema
+.DS_Store
