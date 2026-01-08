@@ -13,7 +13,8 @@ const app = express();
 const whitelist = [
   'http://localhost:5173',          // frontend en local
   'https://jade-jelly-bba4f6.netlify.app',
-  'https://jade-jelly-bba4f6.netlify.app'  // frontend en producción
+  'https://jade-jelly-bba4f6.netlify.app',
+  'https://toy-pulsemx.store'  // frontend en producción
 ];
 
 app.use(cors({
