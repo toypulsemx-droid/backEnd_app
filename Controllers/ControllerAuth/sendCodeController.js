@@ -1,18 +1,17 @@
 const User = require('../../models/modelUser')
 const nodemailer = require('nodemailer')
 
-// Transporter de correo
+// ✅ Transporter SendGrid
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: process.env.SMTP_SECURE === 'true',
+  host: 'smtp.sendgrid.net',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
+    user: 'apikey',
     pass: process.env.EMAIL_PASS,
   },
-  connectionTimeout: 10000, // 10 segundos
-});
-
+  connectionTimeout: 20000,
+})
 
 // Generar código de 6 dígitos
 const generarCodigo = () => {
@@ -28,7 +27,7 @@ const sendCodeAuth = async (req, res) => {
     }
 
     const codigo = generarCodigo()
-    const expiracion = new Date(Date.now() + 10 * 60 * 1000) // 10 min
+    const expiracion = new Date(Date.now() + 10 * 60 * 1000)
 
     let usuario = await User.findOne({ correo })
 
@@ -37,7 +36,7 @@ const sendCodeAuth = async (req, res) => {
         correo,
         telefono,
         codigoValidacion: codigo,
-        codigoExpira: expiracion
+        codigoExpira: expiracion,
       })
     } else {
       usuario.codigoValidacion = codigo
@@ -46,23 +45,22 @@ const sendCodeAuth = async (req, res) => {
 
     await usuario.save()
 
-    // 📧 Enviar correo
+    // 📧 Envío con SendGrid
     await transporter.sendMail({
-      from: `"Validación" <${process.env.EMAIL_USER}>`,
+      from: `"Toy Pulse" <${process.env.EMAIL_FROM}>`,
       to: correo,
       subject: 'Tu código de verificación',
       html: `
-        <h1>TOY PULSE</h1>
-        <h2>Código de verificación</h2>
-        <p>Tu código es:</p>
-        <h1>${codigo}</h1>
-        <p>Este código expira en 10 minutos.</p>
-      `
+        <div style="font-family: Arial; text-align:center;">
+          <h1>TOY PULSE</h1>
+          <h2>Código de verificación</h2>
+          <h1 style="letter-spacing:5px;">${codigo}</h1>
+          <p>Este código expira en 10 minutos.</p>
+        </div>
+      `,
     })
 
-    return res.json({
-      message: 'Código enviado al correo'
-    })
+    return res.json({ message: 'Código enviado al correo' })
 
   } catch (error) {
     console.error('Error al enviar código:', error)
