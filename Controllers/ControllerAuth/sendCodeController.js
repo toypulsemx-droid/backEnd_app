@@ -1,22 +1,11 @@
 const User = require('../../models/modelUser')
-const nodemailer = require('nodemailer')
+const sgMail = require('@sendgrid/mail')
 
-// ✅ Transporter SendGrid
-const transporter = nodemailer.createTransport({
-  host: 'smtp.sendgrid.net',
-  port: 587,
-  secure: false,
-  auth: {
-    user: 'apikey',
-    pass: process.env.EMAIL_PASS,
-  },
-  connectionTimeout: 20000,
-})
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-// Generar código de 6 dígitos
-const generarCodigo = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString()
-}
+// Generar código
+const generarCodigo = () =>
+  Math.floor(100000 + Math.random() * 900000).toString()
 
 const sendCodeAuth = async (req, res) => {
   try {
@@ -36,7 +25,7 @@ const sendCodeAuth = async (req, res) => {
         correo,
         telefono,
         codigoValidacion: codigo,
-        codigoExpira: expiracion,
+        codigoExpira: expiracion
       })
     } else {
       usuario.codigoValidacion = codigo
@@ -45,26 +34,24 @@ const sendCodeAuth = async (req, res) => {
 
     await usuario.save()
 
-    // 📧 Envío con SendGrid
-    await transporter.sendMail({
-      from: `"Toy Pulse" <${process.env.EMAIL_FROM}>`,
+    // 📧 Enviar correo con SendGrid API
+    await sgMail.send({
       to: correo,
+      from: process.env.EMAIL_FROM,
       subject: 'Tu código de verificación',
       html: `
-        <div style="font-family: Arial; text-align:center;">
-          <h1>TOY PULSE</h1>
-          <h2>Código de verificación</h2>
-          <h1 style="letter-spacing:5px;">${codigo}</h1>
-          <p>Este código expira en 10 minutos.</p>
-        </div>
-      `,
+        <h1>TOY PULSE</h1>
+        <p>Tu código de verificación es:</p>
+        <h1>${codigo}</h1>
+        <p>Expira en 10 minutos</p>
+      `
     })
 
-    return res.json({ message: 'Código enviado al correo' })
+    res.json({ message: 'Código enviado correctamente' })
 
   } catch (error) {
     console.error('Error al enviar código:', error)
-    return res.status(500).json({ message: 'Error del servidor' })
+    res.status(500).json({ message: 'Error del servidor' })
   }
 }
 
