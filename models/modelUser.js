@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema(
   {
-    // Identificador principal
+    // 🔐 NO TOCAR (login)
     correo: {
       type: String,
       required: true,
@@ -16,40 +16,86 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
 
-    // Código de validación (6 dígitos)
     codigoValidacion: {
       type: String,
       length: 6
     },
 
-    // Expira en 10 minutos (se calculará al asignar)
     codigoExpira: {
       type: Date
     },
 
-    // Folios de órdenes
-    ordenes: [
+  
+    pedidos: [
       {
-        type: String
-      }
-    ],
+        numeroPedido: {
+          type: String,
+          required: true
+        },
 
-    // Máximo 2 direcciones
-    direcciones: {
-      type: [
-        {
-          calle: String,
-          ciudad: String,
-          estado: String,
-          codigoPostal: String
-        }
-      ],
-      validate: {
-        validator: function (v) {
-          return v.length <= 2
+        nombre: {
+          type: String,
+          required: true
+        },
+
+        telefono: {
+          type: String,
+          required: true
+        },
+
+        cantidad: {
+          type: Number,
+          required: true
+        },
+          status: {
+          type: String,
+           required: true,
+           
+        },
+
+
+        total: {
+          type: Number,
+          required: true
+        },
+
+        tipoPago: {
+          type: String,
+          required: true
+        },
+
+        fechaEntrega: {
+          type: String
+        },
+
+        direcciones: {
+          envio: {
+            calle: String,
+            exterior: String,
+            interior: String,
+            colonia:String,
+            codigoPostal: String,
+            municipio: String,            
+            estado: String
+          },
+          facturacion: {
+            calle: String,
+            exterior: String,
+            interior: String,
+            colonia:String,
+            codigoPostal: String,
+            municipio: String,            
+            estado: String
+          }
+        },
+
+      
+        fechaCompra: {
+          type: Date,
+          default: Date.now
         }
       }
-    }
+    ]
   },
   {
     timestamps: true

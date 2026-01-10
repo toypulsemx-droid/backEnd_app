@@ -4,6 +4,7 @@ const cors = require('cors');
 const codeRoutes = require('./Routes/routesCode');
 const cloudRoutes = require('./Routes/routeCloud');
 const clipRoutes = require('./Routes/routesClip');
+const orderRooute = require('./Routes/routeOrder')
 
 const app = express();
 
@@ -41,5 +42,6 @@ app.use(express.json());
 app.use('/api', codeRoutes);
 app.use('/api', cloudRoutes);
 app.use('/api', clipRoutes);
+app.use('/api', orderRooute);
 
 module.exports = app;
